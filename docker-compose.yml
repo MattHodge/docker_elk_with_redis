@@ -1,0 +1,26 @@
+version: '2'
+services:
+  queue:
+    image: redis
+    ports:
+      - "6379:6379"
+  rdsviewer:
+    image: tenstartups/redis-commander
+    ports:
+      - "8081:8081"
+    command:
+        - --redis-host=queue
+    links:
+      - queue
+  elk:
+    image: sebp/elk
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+      - "5000:5000"
+    volumes:
+      - ./configs/03-redis.conf:/etc/logstash/conf.d/03-redis.conf
+      - ./configs/04-redis-filter.conf:/etc/logstash/conf.d/04-redis-filter.conf
+    links:
+      - queue
